@@ -1,3 +1,5 @@
+\c badges;
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE users (
@@ -30,3 +32,19 @@ CREATE TABLE qr_codes (
   badge_id UUID REFERENCES badges(id),
   expires_at TIMESTAMP NOT NULL
 );
+
+-- Ownership
+ALTER TABLE users OWNER TO badges_user;
+ALTER TABLE badges OWNER TO badges_user;
+ALTER TABLE user_badges OWNER TO badges_user;
+ALTER TABLE qr_codes OWNER TO badges_user;
+
+-- Privileges
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO badges_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO badges_user;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT ALL PRIVILEGES ON TABLES TO badges_user;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT ALL PRIVILEGES ON SEQUENCES TO badges_user;

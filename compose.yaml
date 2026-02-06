@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: badges_db
+    restart: always
+    environment:
+      POSTGRES_USER: badges_user
+      POSTGRES_PASSWORD: Nico1001
+      POSTGRES_DB: badges
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data:Z       # <- SELinux compliant
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:Z
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:Z
+    networks:
+      - backend-network
+
+  backend:
+    build: .
+    container_name: badges_backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - backend-network
+    volumes:
+      - .:/app:Z  # Make your app folder SELinux compliant for live mounts (optional)
+
+networks:
+  backend-network:
+    driver: bridge
+
