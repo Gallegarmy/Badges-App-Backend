@@ -10,9 +10,9 @@ services:
       POSTGRES_PASSWORD: Nico1001
       POSTGRES_DB: badges
     volumes:
-      - ./pgdata:/var/lib/postgresql/data:Z       # <- SELinux compliant
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:Z
-      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:Z
+      - ./pgdata:/var/lib/postgresql/data:Z       
+      - ./schemas/init.sql:/docker-entrypoint-initdb.d/init.sql:Z
+      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql:Z
     networks:
       - backend-network
 
@@ -29,7 +29,7 @@ services:
     networks:
       - backend-network
     volumes:
-      - .:/app:Z  # Make your app folder SELinux compliant for live mounts (optional)
+      - .:/app:Z  
 
 networks:
   backend-network:
