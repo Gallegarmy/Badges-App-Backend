@@ -84,6 +84,10 @@ router.post(
   const expires = new Date(Date.now() + 2 * 60 * 60 * 1000);
 
   await pool.query(
+    "DELETE FROM qr_codes WHERE expires_at < now()"
+  );
+
+  await pool.query(
     "INSERT INTO qr_codes(token, badge_id, expires_at) VALUES ($1,$2,$3)",
     [token, badge_id, expires]
   );
@@ -110,6 +114,13 @@ router.post(
     "SELECT * FROM badges WHERE id=$1",
     [qr.badge_id]
   );
+
+  const { rows: exists } = await pool.query(
+    "SELECT * FROM user_badges WHERE badge_id=$1",
+    [qr.badge_id]
+  );
+
+  if (exists.length) return res.status(403).json({error: "Badge already attained"});
 
   let expiresAt = null;
   if (!badge.rows[0].is_permanent) {
