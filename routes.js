@@ -115,13 +115,6 @@ router.post(
     [qr.badge_id]
   );
 
-  const { rows: exists } = await pool.query(
-    "SELECT * FROM user_badges WHERE badge_id=$1",
-    [qr.badge_id]
-  );
-
-  if (exists.length >= 1)
-    return res.status(403).json({error: "Badge already attained"});
 
   let expiresAt = null;
   if (!badge.rows[0].is_permanent) {
