@@ -120,7 +120,8 @@ router.post(
     [qr.badge_id]
   );
 
-  if (exists.length) return res.status(403).json({error: "Badge already attained"});
+  if (exists.length >= 1)
+    return res.status(403).json({error: "Badge already attained"});
 
   let expiresAt = null;
   if (!badge.rows[0].is_permanent) {
