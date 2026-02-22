@@ -27,7 +27,7 @@ router.post(
   })
 );
 
-
+/* LOGIN HANDLER */
 router.post(
   "/auth/login",
   asyncHandler(async (req, res) => {
@@ -52,7 +52,7 @@ router.post(
   })
 );
 
-/* MY BADGES */
+/* PROFILE HANDLER */
 router.get(
   "/my-badges",
   authMiddleware,
@@ -72,7 +72,7 @@ router.get(
   })
 );
 
-
+/* CREATE TOKEN HANDLER */
 router.post(
   "/qr/create",
   asyncHandler(async (req, res) => {
@@ -96,6 +96,7 @@ router.post(
   })
 );
 
+/* CLAIM BADGE HANDLER */
 router.post(
   "/qr/claim",
   authMiddleware,
@@ -114,6 +115,14 @@ router.post(
     "SELECT * FROM badges WHERE id=$1",
     [qr.badge_id]
   );
+
+  const { rows: exists } = await pool.query(
+    "SELECT * FROM user_badges WHERE badge_id=$1 AND user_id=$2",
+    [qr.badge_id, req.user.id]
+  );
+
+  if (exists.length >= 1)
+    return res.status(403).json({error: "Badge already attained"});
 
 
   let expiresAt = null;
