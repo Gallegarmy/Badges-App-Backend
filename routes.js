@@ -72,6 +72,29 @@ router.get(
   })
 );
 
+router.get(
+    "/badges-list", 
+    asyncHandler( async (req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT 
+          u.username, 
+          COUNT(ub.badge_id) AS badge_count
+        FROM user_badges ub
+        JOIN users u ON u.id = ub.user_id
+        GROUP BY u.id, u.username
+        ORDER BY badge_count DESC
+        LIMIT 10;`
+      );
+
+      res.status(200).json(result.rows);
+    } catch (error) {
+      console.error("Error fetching badges list:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  })
+);
+
 /* CREATE TOKEN HANDLER */
 router.post(
   "/qr/create",
