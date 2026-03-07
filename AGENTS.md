@@ -31,4 +31,4 @@ Prefer short conventional-style commits such as `fix: prevent duplicate badge cl
 
 ## Security & Configuration Tips
 
-Copy `.env.example` to `.env` for local work. Never commit secrets. Keep `DATABASE_URL` and `JWT_SECRET` set locally, and avoid hardcoding credentials in code changes.
+Copy `.env.example` to `.env` for local work. The example values are placeholders for development only. Never commit real or production secrets; override `POSTGRES_PASSWORD`, `DATABASE_URL`, and `JWT_SECRET` outside version control when needed.

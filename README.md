@@ -22,11 +22,15 @@ npm install
 npm run dev
 ```
 
-### Gate
+### Checks
+
+Executa as comprobacións locais antes de subir cambios:
 
 ```bash
 npm run check
 ```
+
+Inclúe `lint`, `typecheck`, `test` e `build`.
 
 ```bash
 npm run lint
@@ -37,6 +41,8 @@ npm run lint
 ```bash
 docker compose up --build
 ```
+
+`docker compose` le `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB` desde `.env`.
 
 ---
 

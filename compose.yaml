@@ -3,14 +3,11 @@ services:
     image: postgres:15-alpine
     container_name: badges_db
     restart: always
-    environment:
-      POSTGRES_USER: badges_user
-      POSTGRES_PASSWORD: Nico1001
-      POSTGRES_DB: badges
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./schemas/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
-      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - backend-network
 
