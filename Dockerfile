@@ -1,21 +1,26 @@
-# Use Node 18 LTS
-FROM node:18-alpine
+FROM node:24-alpine AS base
 
-# Set working directory
+FROM base AS deps
 WORKDIR /app
 
-# Copy package.json and lock first for better caching
-COPY package*.json ./
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install --production
+FROM deps AS build
 
-# Copy the rest of the application
-COPY . .
+COPY tsconfig.json tsconfig.build.json ./
+COPY src ./src
+RUN npm run build && npm prune --omit=dev
 
-# Expose port 3000
+FROM base AS runtime
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=build /app/package.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
-
+CMD ["node", "dist/src/server.js"]

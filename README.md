@@ -4,6 +4,40 @@
 
 Este é un proxecto creado co obxectivo de fomentar a asistencia recorrente a eventos mediante unha dinámica entretida, cooperativa e baseada en medallas/badges.
 
+## Backend
+
+API Fastify + PostgreSQL. Agora con `npm` + TypeScript.
+
+### Requisitos
+
+- Node.js 24+
+- npm 10+
+- PostgreSQL 15+ ou `docker compose`
+
+### Arranque local
+
+```bash
+cp .env.example .env
+npm install
+npm run dev
+```
+
+### Gate
+
+```bash
+npm run check
+```
+
+```bash
+npm run lint
+```
+
+### Docker
+
+```bash
+docker compose up --build
+```
+
 ---
 
 ## 🌍 Comunidades participantes

@@ -1,8 +1,6 @@
-version: '3.9'
-
 services:
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: badges_db
     restart: always
     environment:
@@ -10,9 +8,9 @@ services:
       POSTGRES_PASSWORD: Nico1001
       POSTGRES_DB: badges
     volumes:
-      - ./pgdata:/var/lib/postgresql/data:Z       
-      - ./schemas/init.sql:/docker-entrypoint-initdb.d/init.sql:Z
-      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql:Z
+      - postgres_data:/var/lib/postgresql/data
+      - ./schemas/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     networks:
       - backend-network
 
@@ -28,10 +26,10 @@ services:
       - db
     networks:
       - backend-network
-    volumes:
-      - .:/app:Z  
 
 networks:
   backend-network:
     driver: bridge
 
+volumes:
+  postgres_data:
