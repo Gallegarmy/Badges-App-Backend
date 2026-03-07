@@ -1,3 +1,4 @@
 .env
 pgdata/
 node_modules/
+postgres_password.txt
