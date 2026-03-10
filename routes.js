@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { pool } from "./db.js";
 import { authMiddleware } from "./auth.js";
 import { v4 as uuid } from "uuid";
+import { sendResetEmail } from "./email.js";
 
 export const router = express.Router();
 const asyncHandler =
@@ -162,5 +163,82 @@ router.post(
   await pool.query("DELETE FROM qr_codes WHERE id=$1", [qr.id]);
 
   res.json({ success: true });
+  })
+);
+
+
+/* FORGOT PASSWORD HANDLER*/
+router.post(
+  "/auth/forgot-password",
+  asyncHandler(async (req, res) => {
+
+    const { email } = req.body;
+
+    const { rows } = await pool.query(
+      "SELECT id FROM users WHERE email=$1",
+      [email]
+    );
+
+    if (!rows.length) {
+      return res.json({ success: true });
+    }
+
+    const user = rows[0];
+
+    const token = uuid();
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+    await pool.query(
+      "DELETE FROM password_resets WHERE expires_at < now()"
+    );
+
+    await pool.query(
+      `INSERT INTO password_resets(id,user_id,token,expires_at)
+       VALUES ($1,$2,$3,$4)`,
+      [uuid(), user.id, token, expires]
+    );
+
+    const resetLink =
+      `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    await sendResetEmail(email, resetLink);
+
+    res.json({ success: true });
+
+  })
+);
+
+/* RESET PASSWORD HANDLER*/
+router.post(
+  "/auth/reset-password",
+  asyncHandler(async (req, res) => {
+
+    const { token, password } = req.body;
+
+    const { rows } = await pool.query(
+      "SELECT * FROM password_resets WHERE token=$1 AND expires_at > now()",
+      [token]
+    );
+
+    if (!rows.length) {
+      return res.status(400).json({ error: "Token inválido o expirado" });
+    }
+
+    const reset = rows[0];
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      "UPDATE users SET password_hash=$1 WHERE id=$2",
+      [hash, reset.user_id]
+    );
+
+    await pool.query(
+      "DELETE FROM password_resets WHERE user_id=$1",
+      [reset.user_id]
+    );
+
+    res.json({ success: true });
+
   })
 );
