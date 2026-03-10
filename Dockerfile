@@ -1,5 +1,5 @@
-# Use Node 24 LTS
-FROM node:24-alpine
+# Use Node 22 LTS
+FROM node:22-alpine
 
 # Set working directory
 WORKDIR /app
