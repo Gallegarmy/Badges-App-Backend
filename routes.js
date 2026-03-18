@@ -5,13 +5,13 @@ import { pool } from "./db.js";
 import { authMiddleware } from "./auth.js";
 import { v4 as uuid } from "uuid";
 import { sendResetEmail } from "./email.js";
+import { conferenceRouter } from "./conference-routes.js";
 
 export const router = express.Router();
 const asyncHandler =
   (fn) =>
   (req, res, next) =>
     Promise.resolve(fn(req, res, next)).catch(next);
-
 
 router.post(
   "/auth/register",
@@ -33,6 +33,7 @@ router.post(
   "/auth/login",
   asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
   const { rows } = await pool.query(
     "SELECT * FROM users WHERE email=$1",
     [email]
@@ -50,6 +51,27 @@ router.post(
   );
 
   res.json({ token });
+  })
+);
+
+/* AUTH/ME — returns the current user with conference context */
+router.get(
+  "/auth/me",
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+  const { rows } = await pool.query(
+    "SELECT id, email, username, created_at FROM users WHERE id = $1",
+    [req.user.id]
+  );
+
+  if (!rows.length) return res.status(404).json({ error: "User not found" });
+
+  res.json({
+    user: {
+      ...rows[0],
+      role: "attendee",
+    },
+  });
   })
 );
 
@@ -242,3 +264,6 @@ router.post(
 
   })
 );
+
+// Rutas específicas de conferencias/eventos grandes (módulo separado)
+router.use(conferenceRouter);
