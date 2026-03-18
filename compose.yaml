@@ -10,9 +10,10 @@ services:
       POSTGRES_DB: badges
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     volumes:
-      - ./pgdata:/var/lib/postgresql/data:Z       
-      - ./schemas/init.sql:/docker-entrypoint-initdb.d/init.sql:Z
-      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql:Z
+      - ./pgdata:/var/lib/postgresql/data:Z
+      - ./schemas/init.sql:/docker-entrypoint-initdb.d/00-init.sql:Z
+      - ./schemas/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:Z
+      - ./schemas/migrations/20260315_conference_roles.sql:/docker-entrypoint-initdb.d/02-conference.sql:Z
     secrets:
       - postgres_password
     networks:
