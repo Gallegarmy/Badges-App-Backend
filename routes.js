@@ -5,6 +5,8 @@ import { pool } from "./db.js";
 import { authMiddleware } from "./auth.js";
 import { v4 as uuid } from "uuid";
 import { sendResetEmail } from "./email.js";
+import { patros,comunidades, comunidades } from "./stands.js";
+
 
 export const router = express.Router();
 const asyncHandler =
@@ -105,7 +107,7 @@ router.post(
     return res.status(400).json({ error: "badge_id is required" });
   }
   const token = uuid();
-  const expires = new Date(Date.now() + 2 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
 
   await pool.query(
     "DELETE FROM qr_codes WHERE expires_at < now()"
@@ -160,8 +162,8 @@ router.post(
     [req.user.id, qr.badge_id, expiresAt]
   );
 
-  await pool.query("DELETE FROM qr_codes WHERE id=$1", [qr.id]);
-
+  /* await pool.query("DELETE FROM qr_codes WHERE id=$1", [qr.id]); */ 
+  
   res.json({ success: true });
   })
 );
@@ -240,5 +242,37 @@ router.post(
 
     res.json({ success: true });
 
+  })
+);
+
+/* PATROS BADGES HANDLER */
+router.get(
+  "/patros-badges",
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+  const { rows } = await pool.query(
+      `
+      SELECT COUNT(*) AS count
+      FROM user_badges
+      WHERE user_id = $1
+      AND badge_id = ANY($2)
+      `,
+      [req.user.id, patros]
+    );
+
+  const { rows : stand_comunidades} = await pool.query(
+      `
+      SELECT COUNT(*) AS count
+      FROM user_badges
+      WHERE user_id = $1
+      AND badge_id = ANY($2)
+      `,
+      [req.user.id, comunidades]
+    );
+
+    res.json({
+      "patros-badge": Number(rows[0].count),
+      "comunidades-badge": Number(stand_comunidades[0].count)
+    });
   })
 );
