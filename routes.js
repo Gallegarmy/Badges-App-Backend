@@ -5,7 +5,7 @@ import { pool } from "./db.js";
 import { authMiddleware } from "./auth.js";
 import { v4 as uuid } from "uuid";
 import { sendResetEmail } from "./email.js";
-import { patros,comunidades, comunidades } from "./stands.js";
+import { patros,comunidades } from "./stands.js";
 
 
 export const router = express.Router();
